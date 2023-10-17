@@ -1,19 +1,13 @@
 const express = require("express");
-const { CosmosClient } = require("@azure/cosmos");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const cosmosClient = require("../db");
 
 const router = express.Router();
 const secretKey = process.env.TOKEN_SECRET_KEY;
 const tokenExpiration = process.env.ACCESS_TOKEN_EXPIRATION;
 const refreshTokenExpiration = process.env.REFRESH_TOKEN_EXPIRATION;
 const databaseId = process.env.COSMOS_DB;
-
-// Initialize Azure Cosmos DB client
-const cosmosClient = new CosmosClient({
-  endpoint: process.env.COSMOS_DB_ENDPOINT,
-  key: process.env.COSMOS_DB_KEY,
-});
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
