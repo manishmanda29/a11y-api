@@ -1,0 +1,20 @@
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: ArchiveFiles@2
+    displayName: "A11Y: Zip Files"
+    inputs:
+      archiveType: "zip"
+      archiveFile: "source-code.zip"
+      rootFolderOrFile: "$(System.DefaultWorkingDirectory)/src"
+      includeRootFolder: false
+
+  - task: PublishPipelineArtifact@1
+    displayName: "A11Y: Publish artifact"
+    inputs:
+      targetPath: "$(System.DefaultWorkingDirectory)/source-code.zip"
+      artifact: "a11y-source-code"
