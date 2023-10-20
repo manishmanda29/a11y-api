@@ -8,10 +8,6 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("hello");
-});
-
 app.use("/api/auth", authRoutes); // login, registration
 app.use("/api", protectedRoutes);
 
