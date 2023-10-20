@@ -1,12 +1,17 @@
 const express = require("express");
 const authRoutes = require("./routes/auth");
 const protectedRoutes = require("./routes/protected-routes");
-const cors=require('cors')
+const cors = require("cors");
 const app = express();
 app.use(cors());
 const PORT = process.env.PORT;
 
 app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("hello");
+});
+
 app.use("/api/auth", authRoutes); // login, registration
 app.use("/api", protectedRoutes);
 
