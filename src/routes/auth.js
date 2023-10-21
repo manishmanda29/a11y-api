@@ -1,7 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const cosmosClient = require("../db");
+const db = require("../db");
 
 const router = express.Router();
 const secretKey = process.env.TOKEN_SECRET_KEY;
@@ -13,9 +13,8 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    const { resources: users } = await cosmosClient
-      .database(databaseId)
-      .container(process.env.COSMOS_CONTAINER_USER_DETAILS)
+    const { resources: users } = await db
+      .getUserDetailsContainer()
       .items.query({
         query: "SELECT * FROM c WHERE c.email = @email",
         parameters: [
@@ -93,9 +92,8 @@ router.post("/register", async (req, res) => {
 
   try {
     // Check if the username already exists in the database
-    const { resources: existingUsers } = await cosmosClient
-      .database(databaseId)
-      .container(process.env.COSMOS_CONTAINER_USER_DETAILS)
+    const { resources: existingUsers } = await db
+      .getUserDetailsContainer()
       .items.query({
         query: "SELECT * FROM c WHERE c.email = @email",
         parameters: [
@@ -120,10 +118,7 @@ router.post("/register", async (req, res) => {
     };
 
     // Create a new user document in the Cosmos DB
-    await cosmosClient
-      .database(databaseId)
-      .container(process.env.COSMOS_CONTAINER_USER_DETAILS)
-      .items.create(newUser);
+    await db.getUserDetailsContainer().items.create(newUser);
 
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {

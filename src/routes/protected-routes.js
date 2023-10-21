@@ -1,7 +1,7 @@
 const express = require("express");
 const verifyAccessToken = require("../middlewares/verifyAccessToken");
-const cosmosClient = require("../db");
 const { learningVideosContent } = require("../utils");
+const db = require("../db");
 
 const router = express.Router();
 
@@ -14,9 +14,8 @@ router.get("/get-token-information", verifyAccessToken, (req, res) => {
 
 router.get("/get-learning-videos", verifyAccessToken, async (req, res) => {
   try {
-    const { resources: learningVideoLinks } = await cosmosClient
-      .database(process.env.COSMOS_DB)
-      .container(process.env.COSMOS_CONTAINER_LEARNING_VIDEOS)
+    const { resources: learningVideoLinks } = await db
+      .getLearningVideosContainer()
       .items.readAll()
       .fetchAll();
 
@@ -35,9 +34,7 @@ router.post("/post-learning-videos", verifyAccessToken, async (req, res) => {
       return res.status(400).json({ message: "Invalid or empty input" });
     }
 
-    const container = await cosmosClient
-      .database(process.env.COSMOS_DB)
-      .container(process.env.COSMOS_CONTAINER_LEARNING_VIDEOS);
+    const container = await db.getLearningVideosContainer();
 
     const results = [];
 
@@ -67,9 +64,8 @@ router.post("/set-learning-progress", verifyAccessToken, async (req, res) => {
       return res.status(400).json({ message: "Content title is required" });
     }
 
-    const { resources: userDetails } = await cosmosClient
-      .database(process.env.COSMOS_DB)
-      .container(process.env.COSMOS_CONTAINER_USER_DETAILS)
+    const { resources: userDetails } = await db
+      .getUserDetailsContainer()
       .items.query({
         query: "SELECT * FROM c WHERE c.email = @email",
         parameters: [
@@ -87,9 +83,8 @@ router.post("/set-learning-progress", verifyAccessToken, async (req, res) => {
 
     userDetails[0].lastTopic = contentTitle;
 
-    const { statusCode } = await cosmosClient
-      .database(process.env.COSMOS_DB)
-      .container(process.env.COSMOS_CONTAINER_USER_DETAILS)
+    const { statusCode } = await db
+      .getUserDetailsContainer()
       .item(userDetails[0].id)
       .replace(userDetails[0]);
 
@@ -107,9 +102,8 @@ router.post("/set-learning-progress", verifyAccessToken, async (req, res) => {
 
 router.get("/get-learning-progress", verifyAccessToken, async (req, res) => {
   try {
-    const { resources: userDetails } = await cosmosClient
-      .database(process.env.COSMOS_DB)
-      .container(process.env.COSMOS_CONTAINER_USER_DETAILS)
+    const { resources: userDetails } = await db
+      .getUserDetailsContainer()
       .items.query({
         query: "SELECT * FROM c WHERE c.email = @email",
         parameters: [
