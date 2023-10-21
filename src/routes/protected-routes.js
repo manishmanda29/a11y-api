@@ -81,7 +81,7 @@ router.post("/set-learning-progress", verifyAccessToken, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    userDetails[0].lastTopic = contentTitle;
+    userDetails[0].completedTopics?.push(contentTitle);
 
     const { statusCode } = await db
       .getUserDetailsContainer()
@@ -119,9 +119,21 @@ router.get("/get-learning-progress", verifyAccessToken, async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const lastTopic = userDetails[0].lastTopic;
+    const completedTopics = userDetails[0].completedTopics || [];
+    const remainedTopics = learningVideosContent.topics.filter(
+      (topic) => !completedTopics?.includes(topic)
+    );
 
-    res.status(200).json({ lastTopic });
+    const enableCertificate = !Boolean(remainedTopics.length);
+
+    const responseObj = {
+      enableCertificate,
+      remainedTopics,
+      completedTopics,
+      allTopics: learningVideosContent.topics,
+    };
+
+    res.status(200).json(responseObj);
   } catch (error) {
     res
       .status(500)

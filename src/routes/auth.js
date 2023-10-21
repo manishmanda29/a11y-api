@@ -115,6 +115,7 @@ router.post("/register", async (req, res) => {
       username,
       email,
       hashedPassword,
+      completedTopics: [],
     };
 
     // Create a new user document in the Cosmos DB
