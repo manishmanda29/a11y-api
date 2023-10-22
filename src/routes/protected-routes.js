@@ -52,7 +52,7 @@ router.post("/post-learning-videos", verifyAccessToken, async (req, res) => {
   }
 });
 
-router.get("/get-learning-content", verifyAccessToken, (req, res) => {
+router.get("/get-learning-content", (req, res) => {
   res.status(200).json(learningVideosContent);
 });
 
